@@ -1,6 +1,7 @@
 import requests
 import configparser
 import pandas as pd
+import random
 
 
 def main():
@@ -17,6 +18,7 @@ def main():
         exit()
 
     print_response(response, search_tag)
+    print("Fetch Completed")
 
 
 def get_search_url():
@@ -51,11 +53,21 @@ def print_response(response, search_tag):
     hashtag_list = response.json()['hashtags']
     hashtag_name = []
     hashtag_count = []
+    sanitized_list = []
+
     for row_data in hashtag_list:
+        obj = {'name': row_data['hashtag']['name'], 'count': row_data['hashtag']['media_count']}
+        sanitized_list.append(obj)
         hashtag_name.append(row_data['hashtag']['name'])
         hashtag_count.append(row_data['hashtag']['media_count'])
+
     df = pd.DataFrame({'hashtag': hashtag_name, 'count': hashtag_count})
     df.to_csv('../output/' + search_tag + '_list.csv')
+    sorted_list = sorted(sanitized_list, key=lambda i: i['count'], reverse=True)
+    random_hashtags = random.sample(sorted_list, 4)
+    print(random_hashtags)
 
 
-main()
+# This is the standard boilerplate that calls the main() function.
+if __name__ == '__main__':
+    main()
